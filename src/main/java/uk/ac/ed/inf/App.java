@@ -1,6 +1,5 @@
 package uk.ac.ed.inf;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -10,7 +9,7 @@ import java.util.Collection;
 
 /**
  * Hello world!
- *
+ * https://ilp-rest.azurewebsites.net/
  */
 public class App 
 {
@@ -35,7 +34,7 @@ public class App
             System.out.println("The server responded as JSON greeting: \n");
             for (int i=0; i<10; i++)
             {
-                System.out.println(response[i].customer+"\n\n");
+                System.out.println(response[i].customer + " " + response[i].orderItems[0]);
             }
         } catch (MalformedURLException e){
             e.printStackTrace();

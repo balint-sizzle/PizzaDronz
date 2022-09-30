@@ -1,10 +1,15 @@
 package uk.ac.ed.inf;
 
+import java.util.ArrayList;
+
 public class LngLat {
     public double lng;
     public double lat;
 
     public boolean inCentralArea(){
+        CentralClient client = new  CentralClient();
+        ArrayList<double[]> markers = client.getCentralMarkers();
+
         return false;
     }
 
