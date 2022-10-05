@@ -1,10 +1,21 @@
 package uk.ac.ed.inf;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LngLat {
+    private HashMap<String, Integer> compassToAngle = new HashMap<>();
     public double lng;
     public double lat;
+
+    public LngLat(double longitude, double latitude){
+        lng = longitude;
+        lat = latitude;
+        compassToAngle.put("N", 0);
+        compassToAngle.put("E", 90);
+        compassToAngle.put("S", 180);
+        compassToAngle.put("W", -90);
+    }
 
     public boolean inCentralArea(){
         CentralClient client = new  CentralClient();
@@ -19,14 +30,16 @@ public class LngLat {
     }
 
     public double distanceTo(LngLat c){
-        return 0;
+        return Math.sqrt(Math.pow((c.lng-lng), 2)+Math.pow((c.lat-lat),2));
     }
 
     public boolean closeTo(LngLat c){
-        return false;
+        return distanceTo(c)<0.00015;
     }
 
     public LngLat nextPosition(String cardinalDirection){
-        return null;
+        double newLong = Math.sin(compassToAngle.get(cardinalDirection))*0.00015;
+        double newLat = Math.cos(compassToAngle.get(cardinalDirection))*0.00015;
+        return new LngLat(newLong, newLat);
     }
 }
