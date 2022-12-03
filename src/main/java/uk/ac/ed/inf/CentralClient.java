@@ -1,30 +1,45 @@
 package uk.ac.ed.inf;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-public class CentralClient {
+
+/**
+ * Singleton access point to REST server for fetching the border markers of the central area fly zone
+ */
+public final class CentralClient {
     String urlForCentral = "https://ilp-rest.azurewebsites.net/centralarea";
-    ArrayList<double[]> markers = new ArrayList<>();
-    public ArrayList<double[]> getCentralMarkers(){
+    private static CentralClient INSTANCE;
+
+    /**
+     *
+     * @return Unordered list of all markers from REST server as LngLat objects
+     */
+    public LngLat[] getCentralMarkers(){
         try{
             URL url = new URL(urlForCentral);
-            CentralAreaResponse[] response = new ObjectMapper().readValue(url, CentralAreaResponse[].class);
-            for (int i=0; i< response.length; i++){
-                double[] coords = {response[i].longitude, response[i].latitude};
-                markers.add(coords);
-            }
-            return markers;
+            // configuration which allows LngLat object to be mapped to area markers even though LngLat has no "name" field
+            LngLat[] response = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(url, LngLat[].class);
+            return response;
         } catch (MalformedURLException e){
             e.printStackTrace();
         } catch (IOException e){
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     *
+     * @return CentralClient instance
+     */
+    public static CentralClient getINSTANCE(){
+        if (INSTANCE==null){
+            INSTANCE = new CentralClient();
+        }
+        return INSTANCE;
     }
 }

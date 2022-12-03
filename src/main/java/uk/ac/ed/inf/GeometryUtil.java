@@ -1,49 +1,39 @@
 package uk.ac.ed.inf;
 
-// A Java program to check if a given point
-// lies inside a given polygon
-// Refer https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-// for explanation of functions onSegment(),
-// orientation() and doIntersect()
+
 class GeometryUtil {
 
-    // Define Infinite (Using INT_MAX
-    // caused overflow problems)
     static int INF = 10000;
 
-    static class Point {
-        double x;
-        double y;
-
-        public Point(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    ;
-
-    // Given three collinear points p, q, r,
-    // the function checks if point q lies
-    // on line segment 'pr'
-    static boolean onSegment(Point p, Point q, Point r) {
-        if (q.x <= Math.max(p.x, r.x) &&
-                q.x >= Math.min(p.x, r.x) &&
-                q.y <= Math.max(p.y, r.y) &&
-                q.y >= Math.min(p.y, r.y)) {
+    /**
+     *
+     * Given three collinear points p, q, r,
+     * the function checks if point q lies
+     * on line segment 'pr'
+     * @param p a point
+     * @param q a point
+     * @param r a point
+     * @return boolean whether point q lies on the line segment pr
+     */
+    static boolean onSegment(LngLat p, LngLat q, LngLat r) {
+        if (q.lng <= Math.max(p.lng, r.lng) &&
+                q.lng >= Math.min(p.lng, r.lng) &&
+                q.lat <= Math.max(p.lat, r.lat) &&
+                q.lat >= Math.min(p.lat, r.lat)) {
             return true;
         }
         return false;
     }
 
-    // To find orientation of ordered triplet (p, q, r).
-    // The function returns following values
-    // 0 --> p, q and r are collinear
-    // 1 --> Clockwise
-    // 2 --> Counterclockwise
-    static int orientation(Point p, Point q, Point r) {
-        double val = (q.y - p.y) * (r.x - q.x)
-                - (q.x - p.x) * (r.y - q.y);
+    /** To find orientation of ordered triplet (p, q, r).
+     * The function returns following values
+     * 0 --> p, q and r are collinear
+     * 1 --> Clockwise
+     * 2 --> Counterclockwise
+     * */
+    static int orientation(LngLat p, LngLat q, LngLat r) {
+        double val = (q.lat - p.lat) * (r.lng - q.lng)
+                - (q.lng - p.lng) * (r.lat - q.lat);
 
         if (val == 0) {
             return 0; // collinear
@@ -51,10 +41,16 @@ class GeometryUtil {
         return (val > 0) ? 1 : 2; // clock or counterclock wise
     }
 
-    // The function that returns true if
-    // line segment 'p1q1' and 'p2q2' intersect.
-    static boolean doIntersect(Point p1, Point q1,
-                               Point p2, Point q2) {
+    /** Checking whether 2 line segments composed of 2 points each intersect
+     *
+     * @param p1 x component of point 1
+     * @param q1 y component of point 1
+     * @param p2 x component of point 2
+     * @param q2 y component of point 2
+     * @return true if the line segments p1q1 and p2q2 intersects
+     */
+    static boolean doIntersect(LngLat p1, LngLat q1,
+                               LngLat p2, LngLat q2) {
         // Find the four orientations needed for
         // general and special cases
         int o1 = orientation(p1, q1, p2);
@@ -92,20 +88,25 @@ class GeometryUtil {
             return true;
         }
 
-        // Doesn't fall in any of the above cases
         return false;
     }
 
-    // Returns true if the point p lies
-    // inside the polygon[] with n vertices
-    static boolean isInside(Point polygon[], int n, Point p) {
+    /**
+     * Checking if point lies inside a polygon of any concavity using the horizontal ray casting method
+     *
+     * @param polygon list of points
+     * @param n number of vertices in polygon
+     * @param p point to test
+     * @return true if point p lies inside polygon[] with n vertices
+     */
+    static boolean isInside(LngLat polygon[], int n, LngLat p) {
         // There must be at least 3 vertices in polygon[]
         if (n < 3) {
             return false;
         }
 
         // Create a point for line segment from p to infinite
-        Point extreme = new Point(INF, p.y);
+        LngLat extreme = new LngLat(INF, p.lat);
 
         // To count number of points in polygon
         // whose y-coordinate is equal to
@@ -118,7 +119,7 @@ class GeometryUtil {
         do {
             int next = (i + 1) % n;
 
-            if (polygon[i].y == p.y) decrease++;
+            if (polygon[i].lat == p.lat) decrease++;
 
             // Check if the line segment from 'p' to
             // 'extreme' intersects with the line
@@ -142,6 +143,6 @@ class GeometryUtil {
         count -= decrease;
 
         // Return true if count is odd, false otherwise
-        return (count % 2 == 1); // Same as (count%2 == 1)
+        return (count % 2 == 1);
     }
 }
