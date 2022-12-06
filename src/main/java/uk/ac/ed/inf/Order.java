@@ -76,7 +76,7 @@ public class Order {
                         if (Objects.equals(chosenRestaurant, "")){
                             chosenRestaurant = r.name;
                         }else if(!Objects.equals(r.name, chosenRestaurant)){
-                            throw(new Exception("IncorrectPizzaCombinationException"));
+                            throw(new IncorrectPizzaCombinationException("all pizzas in order must come from one restaurant"));
                         }
                         total+=item.priceInPence;
 
