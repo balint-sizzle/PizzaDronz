@@ -24,47 +24,33 @@ public class Restaurant {
     @JsonProperty("menu")
     public Menu[] menu;
 
-
-    public static void main(String[] args) throws Exception {
-        LngLat p = new LngLat(-3.1884, 55.9447);
-
-        Restaurant[] participants = getRestaurantsFromRestServer(new URL("https://ilp-rest.azurewebsites.net"));
-        Order[] orders = new ObjectMapper().readValue(new URL("https://ilp-rest.azurewebsites.net/orders"), Order[].class);
-        String[] order = {"Margarita", "Margarita", "Margarita"};
-        System.out.println(orders[0].customer);
-        System.out.println(p.inCentralArea());
-        System.out.println(Order.getDeliveryCost(participants, order));
-    }
-
     /**
-     *
      * @return list of items available for order
      */
-    public Menu[] getMenu(){
+    public Menu[] getMenu() {
         return menu;
     }
 
     /**
-     *
      * @param serverBaseAddress for the REST server
      * @return list of participating restaurants and their details including their menus
      */
-    public static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress){
+    public static Restaurant[] getRestaurantsFromRestServer(URL serverBaseAddress) {
         String basis;
 
         if (!serverBaseAddress.toString().endsWith("/")) {
             basis = "/restaurants";
-        }else{
+        } else {
             basis = "restaurants";
         }
 
-        try{
-            URL url = new URL(serverBaseAddress.toString()+basis);
+        try {
+            URL url = new URL(serverBaseAddress + basis);
             Restaurant[] response = new ObjectMapper().readValue(url, Restaurant[].class);
             return response;
-        } catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             e.printStackTrace();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

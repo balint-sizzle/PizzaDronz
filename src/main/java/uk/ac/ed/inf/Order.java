@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -20,7 +23,6 @@ public class Order {
 
     @JsonProperty("customer")
     public String customer;
-
 
 
     @JsonProperty("creditCardNumber")
@@ -39,8 +41,11 @@ public class Order {
     public String[] orderItems;
 
     public OrderOutcome outcome;
+    private DateFormat formatter = new SimpleDateFormat("MM/yy");
+    private String restaurant;
 
-    public Order(String orderNo, String orderDate, String customer, String creditCardNumber, String creditCardExpiry, String cvv, int priceTotalInPence, String[] orderItems, OrderOutcome outcome) {
+    public Order(String orderNo, String orderDate, String customer, String creditCardNumber, String creditCardExpiry, String cvv, int priceTotalInPence, String[] orderItems, OrderOutcome outcome) throws ParseException {
+
         this.orderNo = orderNo;
         this.orderDate = orderDate;
         this.customer = customer;
@@ -51,37 +56,61 @@ public class Order {
         this.orderItems = orderItems;
         this.outcome = outcome;
 
-        System.out.println(customer);
     }
-    public Order(){
-        System.out.println(customer);
+
+    public Order() {
     }
+
+    public void validateOrder() throws ParseException {
+        Date date = formatter.parse(this.creditCardExpiry);
+        Date today = new Date();
+        if (today.compareTo(date) > 0) {
+            this.outcome = OrderOutcome.InvalidExpiryDate;
+        }
+        if (this.creditCardNumber.length() != 16) {
+            this.outcome = OrderOutcome.InvalidCardNumber;
+        }
+        if (this.cvv.length() != 3){
+            this.outcome = OrderOutcome.InvalidCvv;
+        }
+        if (this.orderItems.length > 4 || this.orderItems.length < 1){
+            this.outcome = OrderOutcome.InvalidPizzaCount;
+        }
+
+
+    }
+
     /**
-     *
      * @param participants restaurants in the program
-     * @param orderItems customer's orders
+     * @param orderItems   customer's orders
      * @return total cost of an order in pence including delivery cost
      * @throws Exception IncorrectPizzaCombinationException if not every item is from the same restaurant
      */
-    public static int getDeliveryCost(Restaurant[] participants, String[] orderItems) throws Exception {
-        String chosenRestaurant="";
 
-        assert(orderItems.length>0 && orderItems.length<5);
+    public int getDeliveryCost(Restaurant[] participants, String[] orderItems) throws Exception {
+        String chosenRestaurant = "";
 
-        int total=100;
-        for (String i : orderItems){
-            for (Restaurant r : participants){
-                for (Menu item : r.getMenu()){
-                    if (Objects.equals(item.name, i)){
-                        if (Objects.equals(chosenRestaurant, "")){
+
+        int total = 100;
+        for (String i : orderItems) {
+            // check if pizza ordered exists on a menu
+            boolean pizzaDefined = false;
+            for (Restaurant r : participants) {
+                for (Menu item : r.getMenu()) {
+                    if (Objects.equals(item.name, i)) {
+                        pizzaDefined = true;
+                        if (Objects.equals(chosenRestaurant, "")) {
                             chosenRestaurant = r.name;
-                        }else if(!Objects.equals(r.name, chosenRestaurant)){
-                            throw(new IncorrectPizzaCombinationException("all pizzas in order must come from one restaurant"));
+                        } else if (!Objects.equals(r.name, chosenRestaurant)) {
+                            this.outcome = OrderOutcome.InvalidPizzaCombinationMultipleSuppliers;
+                            throw (new IncorrectPizzaCombinationException("all pizzas in order must come from one restaurant"));
                         }
-                        total+=item.priceInPence;
-
+                        total += item.priceInPence;
                     }
                 }
+            }
+            if (!pizzaDefined){
+                this.outcome = OrderOutcome.InvalidPizzaNotDefined;
             }
         }
 

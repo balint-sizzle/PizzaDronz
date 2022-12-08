@@ -1,7 +1,10 @@
-uk\ac\ed\inf\GeometryUtil.class
+uk\ac\ed\inf\PathPlanner.class
+uk\ac\ed\inf\OrderHandler.class
 uk\ac\ed\inf\Order.class
-uk\ac\ed\inf\IncorrectOrderException.class
-uk\ac\ed\inf\IncorrectPizzaCombinationException.class
 uk\ac\ed\inf\Direction.class
 uk\ac\ed\inf\CentralClient.class
 uk\ac\ed\inf\App.class
+uk\ac\ed\inf\Node.class
+uk\ac\ed\inf\GeometryUtil.class
+uk\ac\ed\inf\IncorrectOrderException.class
+uk\ac\ed\inf\IncorrectPizzaCombinationException.class

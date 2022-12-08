@@ -11,18 +11,21 @@ import java.net.URL;
  * Singleton access point to REST server for fetching the border markers of the central area fly zone
  */
 public final class CentralClient {
-    String urlForCentral = "https://ilp-rest.azurewebsites.net/centralarea";
-    private static CentralClient INSTANCE;
+    private static final String DEFAULT_URL = "https://ilp-rest.azurewebsites.net/centralarea";
+    private static CentralClient instance;
+    private URL instanceUrl;
 
+    public CentralClient(URL baseUrl){
+        this.instanceUrl = baseUrl;
+    }
     /**
      *
      * @return Unordered list of all markers from REST server as LngLat objects
      */
     public LngLat[] getCentralMarkers(){
         try{
-            URL url = new URL(urlForCentral);
             // configuration which allows LngLat object to be mapped to area markers even though LngLat has no "name" field
-            LngLat[] response = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(url, LngLat[].class);
+            LngLat[] response = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(this.instanceUrl, LngLat[].class);
             return response;
         } catch (MalformedURLException e){
             e.printStackTrace();
@@ -36,10 +39,27 @@ public final class CentralClient {
      *
      * @return CentralClient instance
      */
-    public static CentralClient getINSTANCE(){
-        if (INSTANCE==null){
-            INSTANCE = new CentralClient();
+    public static CentralClient getINSTANCE(String baseUrlStr){
+
+        if (instance ==null){
+            String endpoint = CentralClient.DEFAULT_URL;
+            if (!baseUrlStr.equals("")){
+                endpoint = baseUrlStr;
+            }
+            if (!endpoint.endsWith("/")) {
+                endpoint +="/centralarea";
+            }else{
+                endpoint += "centralarea";
+            }
+            try{
+
+                URL baseUrl = new URL(endpoint);
+                instance = new CentralClient(baseUrl);
+            } catch (MalformedURLException e){
+                e.printStackTrace();
+            }
+
         }
-        return INSTANCE;
+        return instance;
     }
 }
